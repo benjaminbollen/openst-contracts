@@ -125,11 +125,11 @@ contract BrandedToken
         returns (bool /* success */)
     {
         require(
-            isInternalActor[_to] == true,
+            isInternalActor[_to],
             "to address is invalid economy actor!"
         );
 
-        EIP20Token.transfer(_to, _value);
+        return super.transfer(_to, _value);
     }
 
     /**
@@ -150,11 +150,11 @@ contract BrandedToken
         returns (bool /* success */)
     {
         require(
-            isInternalActor[_to] == true,
+            isInternalActor[_to],
             "to is invalid economy actor!"
         );
 
-        EIP20Token.transferFrom(_from, _to, _value);
+        return super.transferFrom(_from, _to, _value);
     }
 
     /**
@@ -173,11 +173,11 @@ contract BrandedToken
         returns (bool /* success */)
     {
         require(
-            isInternalActor[_spender] == true,
+            isInternalActor[_spender],
             "spender is invalid economy actor!"
         );
 
-        EIP20Token.approve(_spender, _value);
+        return super.approve(_spender, _value);
     }
 
     function clearAllowance(address _approver) public returns (bool)
@@ -210,7 +210,11 @@ contract BrandedToken
         returns (bool /* success */)
     {
         require(
+<<<<<<< HEAD
             isInternalActor[_beneficiary] == true,
+=======
+            (isInternalActor[_beneficiary]),
+>>>>>>> feature/token-holder
             "beneficiary is invalid economy actor!"
         );
 
