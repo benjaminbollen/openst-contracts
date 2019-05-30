@@ -32,11 +32,11 @@ contract Credit is ExtensionRuleI, FirewalledRule {
     // Bound the number of maximum (active) generations to keep performance
     uint8 public constant MAX_GENERATIONS = uint8(15);
 
-    // Issuer of credits
-    address public issuer;
+    // Issuer of credits // use onlyOrganization
+    // address public issuer;
 
     // mapping of generation to credit balances
-    mapping(uint32 => mapping(address => uint256)) public credits;
+    mapping(uint256 => mapping(address => uint256)) public credits;
 
     // linked list of generations expressed by their expiration time in
     // seconds since unix epoch; ordered in increasing expiration time.
@@ -44,9 +44,10 @@ contract Credit is ExtensionRuleI, FirewalledRule {
 
     // whitelist of destination addresses [under consideration; OPTIONAL]
 
+    // use Organization instead
     modifier onlyIssuer {
         require(
-            msg.sender == issuer,
+            organization.isOrganization(msg.sender),
             "Only issuer can call this function."
         );
         _;
@@ -85,19 +86,24 @@ contract Credit is ExtensionRuleI, FirewalledRule {
     // function pruneGeneration
 
     // allocate new credit to beneficiary assigned to a generation
-    function allocateCredit(uint256 _generation, address _beneficiary, uint256 _amount)
+    function allocateCredit(uint256 _generation, address _holder, uint256 _amount)
         external
         onlyIssuer
         // returns (bool) // what should it return?
     {
-        //
+        uint256 balance = token.balanceOf(this); // get the token balance
+        assert(balance >= allocatedBudget);
+        require(balance - allocatedBudget >= _amount,
+            "Insufficient balance to allocate credit.");
+        
     }
 
 
 
 
-    // only track an allocated budget; use balance of token to know budget
-    // 
+    // creates complications, ignore
+    // // explicitly track tokens deposited by issuer, to ensure credits are only allocated
+    // // with the token budget provided by issuer
     // function depositTokens(uint256 _amount)
     //     external
     //     onlyIssuer
@@ -106,4 +112,13 @@ contract Credit is ExtensionRuleI, FirewalledRule {
         
     //     require(token.transferFrom(msg.sender, address(this), _amount);
     // }
+
+    // prevent locked tokens in this contract with a general transfer function
+    function transferTokens(EIP20TokenInterface _token, address _to, uint256 _amount)
+        external
+        onlyOrganization
+    {
+        // if _token != token, there are no restrictions
+        // if _token = token, only unallocated tokens can be transferred, 
+    }
 }
