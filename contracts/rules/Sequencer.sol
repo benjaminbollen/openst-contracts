@@ -19,14 +19,16 @@ import "./ExtensionRuleI.sol";
 
 contract Sequencer {
 
-    struct Transfers {
-        address[] to;
-        uint256[] amount;
-    }
+    // not needed
+    // struct Transfers {
+    //     address[] to;
+    //     uint256[] amount;
+    // }
 
-    bytes4 public constant EXTEND_CALLPREFIX = bytes4(
-        keccak256("extend(address[],uint256[])")
-    );
+    // note: not needed, using extension interface explicitly
+    // bytes4 public constant EXTEND_CALLPREFIX = bytes4(
+    //     keccak256("extend(address[],uint256[])")
+    // );
 
     function sequence(
         TokenRules _tokenRules, // make TokenRulesI interface
@@ -59,7 +61,7 @@ contract Sequencer {
 
         // call all extensions with interface
         for (uint256 i = 0; i < _extension.length(); i++) {
-            
+
             (statusCode, to, amount) = _extension[i].extend(to, amount);
             require(statusCode == 0x01, "Status code must return success.");
         }
