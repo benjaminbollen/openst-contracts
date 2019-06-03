@@ -35,11 +35,11 @@ contract Credit is ExtensionRuleI, FirewalledRule {
     EIP20TokenInterface public token;
 
     // total allocated budget to credits; keep these tokens locked in the contract
-    uint256 public totalAllocatedBudget;
+    uint256 public totalBudget;
 
-    // track allocated budget per generation for efficient freeing up budget
+    // track partial allocated budget per generation for efficient freeing up budget
     // on expiring generations
-    mapping(uint256 => uint256)
+    mapping(uint256 => uint256) public partialBudgets;
 
     // mapping of generation to credit balances
     mapping(uint256 => mapping(address => uint256)) public credits;
@@ -105,13 +105,15 @@ contract Credit is ExtensionRuleI, FirewalledRule {
         // returns (bool) // what should it return?
     {
         uint256 balance = token.balanceOf(address(this)); // get the token balance
-        assert(balance >= allocatedBudget);
-        require(balance - allocatedBudget >= _amount,
+        assert(balance >= totalBudget);
+        require(balance - totalBudget >= _amount,
             "Insufficient balance to allocate credit.");
         require(isValidGeneration(_generation),
             "Generation must be valid.");
         credits[_generation][_holder] = credits[_generation][_holder].add(_amount);
-        allocatedBudget = allocatedBudget.
+        totalBudget = totalBudget.add(_amount);
+        partialBudgets[_generation] = partialBudgets[_generation].add(_amount);
+
     }
 
 
